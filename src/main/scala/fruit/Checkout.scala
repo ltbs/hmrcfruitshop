@@ -1,11 +1,11 @@
 package fruit
 
-object Checkout {
+case class Checkout(offers: OfferLine*) {
 
   /**
     * Prints the costs as a table
     */
-  def printCost(items: Seq[Fruit]) {
+  def printCost(items: Seq[Valuable]) {
     val maxLength = {10 :: items.map(_.toString.size).toList}.max + 1
     def line(label: String, money: BigDecimal) {
       val pad = " " * (maxLength - label.size)
@@ -18,6 +18,12 @@ object Checkout {
     line("Total Cost", items.value)
   }
 
+}
+
+object Checkout extends Checkout(
+    Offer.bogofApples,
+    Offer.thirdOrange
+) {
   /**
     * Parses arguments looking for a space separated list of products and prints
     * out the table of costs. Could be improved by moving the parsing logic out
@@ -32,7 +38,7 @@ object Checkout {
         System.err.println(s"Warning - unknown item '$raw'")
         None
     }}
-    printCost(fruit)
+    printCost(fruit.toList.applyOffers(offers))
   }
 
 }
