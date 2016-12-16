@@ -13,6 +13,10 @@ object FruitSpecification extends Properties("Fruit") {
     (y :: xs).value > xs.value && (if (xs.isEmpty) xs.value == 0 else true)
   }
 
+  property("addingIncreasesCostByCorrectAmount") = forAll { (xs: List[Fruit], y: Fruit) =>
+    (y :: xs).value == (xs.value + y.value) && (if (xs.isEmpty) xs.value == 0 else true)
+  }
+
   property("commutative") = forAll { (xs: List[Fruit]) =>
     shuffle(xs).value == xs.value
   }

@@ -21,8 +21,9 @@ case class Checkout(offers: OfferLine*) {
 }
 
 object Checkout extends Checkout(
-    Offer.bogofApples,
-    Offer.thirdOrange
+  Offer.bogofApples,
+  Offer.thirdOrange,
+  Offer.melonsTwoForThree
 ) {
   /**
     * Parses arguments looking for a space separated list of products and prints
@@ -32,12 +33,13 @@ object Checkout extends Checkout(
   def main(args: Array[String]) {
     val fruit = args.flatMap{raw =>
       raw.toLowerCase match {
-      case "apple" => Some(Apple)
-      case "orange" => Some(Orange)
-      case _ =>
-        System.err.println(s"Warning - unknown item '$raw'")
-        None
-    }}
+        case "apple" => Some(Apple)
+        case "orange" => Some(Orange)
+        case "melon" => Some(Melon)
+        case _ =>
+          System.err.println(s"Warning - unknown item '$raw'")
+          None
+      }}
     printCost(fruit.toList.applyOffers(offers))
   }
 
