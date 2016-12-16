@@ -25,5 +25,23 @@ package object fruit {
       }
       offersRemoved ++ offers.map{_(offersRemoved)}.flatten
     }
+
+    /**
+      * Prints the costs as a table
+      */
+    def printTable {
+      val maxLength = {10 :: s.map(_.toString.size).toList}.max + 1
+
+      def line(label: String, money: BigDecimal) {
+        val pad = " " * (maxLength - label.size)
+        println(f"${label}${pad}£${money}%.2f")
+      }
+
+      s.foreach{ i => line(i.toString, i.value) }
+
+      println("=" * (maxLength + 8))
+      line("Total Cost", s.value)
+    }
+    
   }
 }

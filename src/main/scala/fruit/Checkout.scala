@@ -1,46 +1,34 @@
 package fruit
 
-case class Checkout(offers: OfferLine*) {
+import Offer._
 
-  /**
-    * Prints the costs as a table
-    */
-  def printCost(items: Seq[Valuable]) {
-    val maxLength = {10 :: items.map(_.toString.size).toList}.max + 1
-    def line(label: String, money: BigDecimal) {
-      val pad = " " * (maxLength - label.size)
-      println(f"${label}${pad}£${money}%.2f")
+/**
+  * The checkout must know the possible items ahead of time (for
+  * parsing), and what offers are applicable.
+  */
+class Checkout(val knownItems: Valuable*)(val offers: OfferLine*) {
+
+  lazy val itemsToParse: Map[String,Valuable] =
+      knownItems.map{ x => (x.toString, x)}.toMap
+
+  def parse(i: String): Option[Valuable] =
+    itemsToParse.get(i).orElse {
+      System.err.println(s"Warning - unknown item '$i'")
+      None
     }
 
-    items.foreach{ i => line(i.toString, i.value) }
-
-    println("=" * (maxLength + 8))
-    line("Total Cost", items.value)
-  }
-
+  def parseAll(ix: Seq[String]) : Seq[Valuable] = ix.flatMap(parse)
 }
 
-object Checkout extends Checkout(
-  Offer.bogofApples,
-  Offer.thirdOrange,
-  Offer.melonsTwoForThree
-) {
-  /**
-    * Parses arguments looking for a space separated list of products and prints
-    * out the table of costs. Could be improved by moving the parsing logic out
-    * and using a Reads typeclass.
-    */
-  def main(args: Array[String]) {
-    val fruit = args.flatMap{raw =>
-      raw.toLowerCase match {
-        case "apple" => Some(Apple)
-        case "orange" => Some(Orange)
-        case "melon" => Some(Melon)
-        case _ =>
-          System.err.println(s"Warning - unknown item '$raw'")
-          None
-      }}
-    printCost(fruit.toList.applyOffers(offers))
-  }
-
+/** 
+  * Main application entry point
+  */
+object Checkout extends Checkout (
+  // Known Items
+  Apple, Orange, Melon, Banana
+)(
+  // Applicable Offers
+  nthFree(2, Apple, Banana), nthFree(3, Orange), nthFree(3, Melon)
+) with App {
+  parseAll(args).applyOffers(offers).printTable
 }
